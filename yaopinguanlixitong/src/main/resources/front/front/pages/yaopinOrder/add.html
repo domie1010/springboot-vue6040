@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>药品订单添加</title>
+    <!-- bootstrap样式，地图插件使用 -->
+    <link rel="stylesheet" href="../../css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <!-- 样式 -->
+    <link rel="stylesheet" href="../../css/style.css" />
+    <!-- 主题（主要颜色设置） -->
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <!-- 通用的css -->
+    <link rel="stylesheet" href="../../css/common.css" />
+</head>
+<style>
+    html::after {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        content: '';
+        display: block;
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+        z-index: -1;
+    }
+    #swiper {
+        overflow: hidden;
+        margin: 0 auto;
+    }
+    #swiper .layui-carousel-ind li {
+        width: 20px;
+        height: 10px;
+        border-width: 0;
+        border-style: solid;
+        border-color: rgba(0,0,0,.3);
+        border-radius: 6px;
+        background-color: #f7f7f7;
+        box-shadow: 0 0 6px rgba(255,0,0,.8);
+    }
+    #swiper .layui-carousel-ind li.layui-this {
+        width: 30px;
+        height: 10px;
+        border-width: 0;
+        border-style: solid;
+        border-color: rgba(0,0,0,.3);
+        border-radius: 6px;
+    }
+
+    button, button:focus {
+        outline: none;
+    }
+
+    .data-add-container .add .layui-select-title .layui-unselect {
+        padding: 0 12px;
+        height: 40px;
+        font-size: 15px;
+        border-radius: 4px;
+        border-width: 1px;
+        border-style: solid;
+        text-align: center;
+    }
+    .data-add-container .add .layui-form-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .data-add-container .layui-form-pane .layui-form-item[pane] .layui-form-label {
+        margin: 0;
+        position: inherit;
+        background: transparent;
+        border: 0;
+    }
+    .data-add-container .add .layui-input-block {
+        margin: 0;
+        flex: 1;
+    }
+    .data-add-container .layui-form-pane .layui-form-item[pane] .layui-input-inline {
+        margin: 0;
+        flex: 1;
+        display: flex;
+    }
+</style>
+<body style="background: #fff; ">
+    <div id="app">
+        <div class="data-add-container  sub_borderColor" :style='{"padding":"20px","margin":"30px auto","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"10px","borderWidth":"1px","borderStyle":"solid"}'>
+
+            <form class="layui-form layui-form-pane add" lay-filter="myForm">
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        药品名称：
+                    </label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                            v-model="yaopin.yaopinName" type="text" autocomplete="off"  readonly="readonly">
+                    </div>
+                </div>
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        药品编号：
+                    </label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                            v-model="yaopin.yaopinUuidNumber" type="text" autocomplete="off"  readonly="readonly">
+                    </div>
+                </div>
+                <div v-if="yaopin.yaopinPhoto" class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">图片：</label>
+                    <div class="layui-input-block">
+                        <div style="display:inline-block;margin-right:10px;">
+                            <img id="yaopinPhotoImg" style="width: 100px;height: 100px;border-radius: 50%;border: 2px solid #EEEEEE;"
+                                 :src="baseUrl+yaopin.yaopinPhoto">
+                            <input type="hidden" :value="detail.yaopinPhoto" id="yaopinPhoto" name="yaopinPhoto" />
+                        </div>
+                    </div>
+                </div>
+                            <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        处方药：
+                    </label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                           v-model="yaopin.chufangyaoValue" type="text" autocomplete="off" readonly="readonly">
+                    </div>
+                </div>
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        二级类型：
+                    </label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                           v-model="yaopin.yaopinErjiValue" type="text" autocomplete="off" readonly="readonly">
+                    </div>
+                </div>
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}'
+                            class="layui-form-label">药品库存：</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                           v-model="yaopin.yaopinKucunNumber" type="text" autocomplete="off" readonly="readonly">
+                    </div>
+                </div>
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}'
+                            class="layui-form-label">赞：</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                           v-model="yaopin.zanNumber" type="text" autocomplete="off" readonly="readonly">
+                    </div>
+                </div>
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}'
+                            class="layui-form-label">踩：</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                           v-model="yaopin.caiNumber" type="text" autocomplete="off" readonly="readonly">
+                    </div>
+                </div>
+                <!-- 级联表 收货地址 -->
+                <!--<div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        收货地址：
+                    </label>
+                    <div class="layui-input-block">
+                        <select name="addressId" id="addressId" lay-filter="addressId">
+                            <option v-for="(item,index) in addressList" v-bind:key="index" :value="item.id" :selected="detail.addressId == item.id?true:false" :key="item.id">{{ item.addressName }}</option>
+                        </select>
+                    </div>
+                </div>-->
+                <!-- 级联表 药品 -->
+                <!--<div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        药品：
+                    </label>
+                    <div class="layui-input-block">
+                        <select name="yaopinId" id="yaopinId" lay-filter="yaopinId">
+                            <option v-for="(item,index) in yaopinList" v-bind:key="index" :value="item.id" :selected="detail.yaopinId == item.id?true:false" :key="item.id">{{ item.yaopinName }}</option>
+                        </select>
+                    </div>
+                </div>-->
+                <!-- 级联表 用户 -->
+                <!--<div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        用户：
+                    </label>
+                    <div class="layui-input-block">
+                        <select name="yonghuId" id="yonghuId" lay-filter="yonghuId">
+                            <option v-for="(item,index) in yonghuList" v-bind:key="index" :value="item.id" :selected="detail.yonghuId == item.id?true:false" :key="item.id">{{ item.yonghuName }}</option>
+                        </select>
+                    </div>
+                </div>-->
+    <!-- 当前表的 -->
+<!-- 唯一uuid -->
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        订单编号：
+                    </label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                               v-model="detail.yaopinOrderUuidNumber" lay-verify="required" type="text" :readonly="ro.yaopinOrderUuidNumber" name="yaopinOrderUuidNumber" id="yaopinOrderUuidNumber" autocomplete="off">
+                    </div>
+                </div>
+                <!-- 级联表的表id -->
+                <input type="hidden" :value="detail.addressId" id="addressId" name="addressId"/>
+                <!-- 级联表的表id -->
+                <input type="hidden" :value="detail.yaopinId" id="yaopinId" name="yaopinId"/>
+                <!-- 级联表的表id -->
+                <input type="hidden" :value="detail.yonghuId" id="yonghuId" name="yonghuId"/>
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        购买数量：
+                    </label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                           v-model="detail.buyNumber" lay-verify="integer|required" type="text" :readonly="ro.buyNumber" name="buyNumber" id="buyNumber" autocomplete="off">
+                    </div>
+                </div>
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        医生证明：
+                    </label>
+                    <div class="layui-input-block">
+                        <div v-if="detail.yaopinOrderFile" style="display:inline-block;margin-right:10px;">
+                            <button v-if="detail.yaopinOrderFile != null" @click="jump(baseUrl+detail.yaopinOrderFile)" id="yaopinOrderFileImg" type="button" class="layui-btn layui-btn-success">点击查看</button>
+                            <span v-if="detail.yaopinOrderFile == null">暂无文件</span>
+                            <input type="hidden" :value="detail.yaopinOrderFile" id="yaopinOrderFile" name="yaopinOrderFile" />
+                        </div>
+                        <button v-if="!ro.yaopinOrderFile" :style='{"padding":"0 10px","boxShadow":"0 0 0px rgba(255,0,0,.5)","margin":"0 10px 0 0","borderColor":"#ccc","color":"#fff","borderRadius":"8px","borderWidth":"0","width":"auto","fontSize":"14px","borderStyle":"solid","height":"44px"}' type="button" class="layui-btn btn-theme main_backgroundColor" id="yaopinOrderFileUpload">
+                            <i v-if="true" :style='{"color":"#fff","show":true,"fontSize":"14px"}' class="layui-icon">&#xe67c;</i>上传医生证明
+                        </button>
+                    </div>
+                </div>
+                    <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        快递公司：
+                    </label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                           v-model="detail.yaopinOrderCourierName" lay-verify="required" type="text" :readonly="ro.yaopinOrderCourierName" name="yaopinOrderCourierName" id="yaopinOrderCourierName" autocomplete="off">
+                    </div>
+                </div>
+                <div class="layui-form-item main_borderColor" :style='{"padding":"10px","boxShadow":"0 0 0px rgba(255,0,0,.8)","margin":"0 0 10px 0","backgroundColor":"rgba(255, 255, 255, 0)","borderRadius":"1px","borderWidth":"0 0 1px 0","borderStyle":"solid"}'>
+                    <label  :style='{"width":"auto","borderColor": "rgba(255, 255, 255, 0)","padding":"0 12px 0 0","backgroundColor":"rgba(255, 255, 255, 0)","fontSize":"15px","color":"#333","textAlign":"left"}' class="layui-form-label">
+                        快递单号：
+                    </label>
+                    <div class="layui-input-block">
+                        <input class="layui-input main_borderColor" :style='{"padding":"0 12px","boxShadow":"0 0 0px rgba(160, 67, 26, 1)","backgroundColor":"#fff","color":"rgba(135, 206, 250, 1)","borderRadius":"4px","textAlign":"left","borderWidth":"1px","fontSize":"15px","borderStyle":"solid","height":"40px"}'
+                           v-model="detail.yaopinOrderCourierNumber" lay-verify="required" type="text" :readonly="ro.yaopinOrderCourierNumber" name="yaopinOrderCourierNumber" id="yaopinOrderCourierNumber" autocomplete="off">
+                    </div>
+                </div>
+                <div class="btn-container">
+                    <span style="font-size: 18px;font-weight: bold;color: #ce0b07;margin-right: 20px;">
+                        总价：{{(yaopin.yaopinNewMoney * detail.buyNumber).toFixed(2) }}RMB
+                    </span>
+                    <button lay-filter="thisSubmit" lay-submit type="button" class="layui-btn layui-btn-lg btn-theme">
+                        <i class="layui-icon">&#xe657;</i> 提交
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/vue.js"></script>
+    <!-- 引入element组件库 -->
+    <script src="../../xznstatic/js/element.min.js"></script>
+    <!-- 引入element样式 -->
+    <link rel="stylesheet" href="../../xznstatic/css/element.min.css">
+    <!-- 组件配置信息 -->
+    <script src="../../js/config.js"></script>
+    <!-- 扩展插件配置信息 -->
+    <script src="../../modules/config.js"></script>
+    <!-- 工具方法 -->
+    <script src="../../js/utils.js"></script>
+    <!-- 校验格式工具类 -->
+    <script src="../../js/validate.js"></script>
+    <!-- 地图 -->
+    <script type="text/javascript" src="../../js/jquery.js"></script>
+    <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=ca04cee7ac952691aa67a131e6f0cee0"></script>
+    <script type="text/javascript" src="../../js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../js/bootstrap.AMapPositionPicker.js"></script>
+
+    <script>
+        var jquery = $;
+
+        var vue = new Vue({
+            el: '#app',
+            data: {
+                //项目路径
+                baseUrl:"",
+                dataList: [],
+                ro:{
+                    yaopinOrderUuidNumber: true,
+                    addressId: false,
+                    yaopinId: false,
+                    yonghuId: false,
+                    buyNumber: true,
+                    yaopinOrderFile: false,
+                    yaopinOrderTruePrice: false,
+                    yaopinOrderCourierName: false,
+                    yaopinOrderCourierNumber: false,
+                    yaopinOrderTypes: false,
+                    yaopinOrderYesnoTypes: false,
+                    yaopinOrderYesnoText: false,
+                    yaopinOrderShenheTime: false,
+                    yaopinOrderPaymentTypes: false,
+                    insertTime: false,
+                    createTime: false,
+                },
+                detail: {
+                    yaopinOrderUuidNumber: new Date().getTime(),//数字
+                    addressId: '',
+                    yaopinId: '',
+                    yonghuId: '',
+                    buyNumber: '',
+                    yaopinOrderFile: '',
+                    yaopinOrderTruePrice: '',
+                    yaopinOrderCourierName: '',
+                    yaopinOrderCourierNumber: '',
+                    yaopinOrderTypes: '',//数字
+                    yaopinOrderValue: '',//数字对应的值
+                    yaopinOrderYesnoTypes: '',//数字
+                    yaopinOrderYesnoValue: '',//数字对应的值
+                    yaopinOrderYesnoText: null,
+                    yaopinOrderShenheTime: '',
+                    yaopinOrderPaymentTypes: '',//数字
+                    yaopinOrderPaymentValue: '',//数字对应的值
+                    insertTime: '',
+                    createTime: '',
+                },
+                addressList:[],//级联表列表 收货地址
+                address: {},//级联表单个 收货地址
+                yaopinList:[],//级联表列表 药品
+                yaopin: {},//级联表单个 药品
+                yonghuList:[],//级联表列表 用户
+                yonghu: {},//级联表单个 用户
+
+                // 下拉框
+                yaopinOrderTypesList: [],
+                yaopinOrderYesnoTypesList: [],
+                yaopinOrderPaymentTypesList: [],
+
+                centerMenu: centerMenu
+            },
+            updated: function() {
+                layui.form.render('select', 'myForm');
+            },
+            computed: {
+            },
+            methods: {
+                jump(url) {
+                    jump(url)
+                }
+            }
+        })
+
+
+        layui.use(['layer', 'element', 'carousel', 'http', 'jquery', 'form', 'upload', 'laydate','tinymce'], function() {
+            var layer = layui.layer;
+            var element = layui.element;
+            var carousel = layui.carousel;
+            var http = layui.http;
+            var jquery = layui.jquery;
+            var form = layui.form;
+            var upload = layui.upload;
+            var laydate = layui.laydate;
+            var tinymce = layui.tinymce;
+            vue.baseUrl = http.baseurl
+
+            localStorage.setItem("goUtl","./pages/yaopinOrder/list.html")
+
+            //var addressId = http.getParam('addressId');
+            let addressId = localStorage.getItem("addressId")
+            if(addressId != null && addressId != ""){
+                //单个 收货地址查询
+                initializationAddress(addressId);
+            }
+            //列表 收货地址查询
+            initializationAddressList();
+            //var yaopinId = http.getParam('yaopinId');
+            let yaopinId = localStorage.getItem("yaopinId")
+            if(yaopinId != null && yaopinId != ""){
+                //单个 药品查询
+                initializationYaopin(yaopinId);
+            }
+            //列表 药品查询
+            initializationYaopinList();
+            //var yonghuId = http.getParam('yonghuId');
+            let yonghuId = localStorage.getItem("yonghuId")
+            if(yonghuId != null && yonghuId != ""){
+                //单个 用户查询
+                initializationYonghu(yonghuId);
+            }
+            //列表 用户查询
+            initializationYonghuList();
+            // 下拉框
+            // 订单类型的查询和初始化
+            yaopinOrderTypesSelect();
+            // 审核状态的查询和初始化
+            yaopinOrderYesnoTypesSelect();
+            // 支付类型的查询和初始化
+            yaopinOrderPaymentTypesSelect();
+
+           // 上传文件
+            // 医生证明的文件上传
+            upload.render({
+                //绑定元素
+                elem: '#yaopinOrderFileUpload',
+                //上传接口
+                url: http.baseurl + 'file/upload',
+                // 请求头
+                headers: {
+                    Token: localStorage.getItem('Token')
+                },
+                // 允许上传时校验的文件类型
+                accept: 'file',
+                before: function () {
+                    //loading层
+                    var index = layer.load(1, {
+                        shade: [0.1, '#fff'] //0.1透明度的白色背景
+                    });
+                },
+                // 上传成功
+                done: function (res) {
+                    console.log(res);
+                    layer.closeAll();
+                    if (res.code == 0) {
+                        layer.msg("上传成功", {
+                            time: 2000,
+                            icon: 6
+                        })
+                        var url = 'upload/' + res.file;
+                        jquery('#yaopinOrderFile').val(url);
+                        vue.detail.yaopinOrderFile = url;
+                        jquery('#yaopinOrderFileImg').attr('src', url);
+                    } else {
+                        layer.msg(res.msg, {
+                            time: 2000,
+                            icon: 5
+                        })
+                    }
+                },
+                //请求异常回调
+                error: function () {
+                    layer.closeAll();
+                    layer.msg("请求接口异常", {
+                        time: 2000,
+                        icon: 5
+                    })
+                }
+            });
+            // 日期效验规则及格式
+            dateTimePick();
+            // 表单效验规则
+            form.verify({
+                // 正整数效验规则
+                integer: [
+                    /^[1-9][0-9]*$/
+                    ,'必须是正整数'
+                ]
+                // 小数效验规则
+                ,double: [
+                    /^[1-9][0-9]{0,5}(\.[0-9]{1,2})?$/
+                    ,'最大整数位为6为,小数最大两位'
+                ]
+            });
+
+            // session独取
+            let table = localStorage.getItem("userTable");
+            http.request(table+"/session", 'get', {}, function (data) {
+                // 表单赋值
+                //form.val("myForm", data.data);
+                // data = data.data;
+                for (var key in data) {
+                    vue.detail[table+"Id"] = data.id
+                }
+            });
+
+            //修改
+            if(http.getParam('yaopinOrderId')){
+                http.request(`yaopinOrder/info/${http.getParam('yaopinOrderId')}`, 'get', {}, function(data) {
+                    vue.detail = data.data
+                    jquery("#yaopinOrderShenheTime").val(vue.detail.yaopinOrderShenheTime)
+                    jquery("#insertTime").val(vue.detail.insertTime)
+                    jquery("#createTime").val(vue.detail.createTime)
+                });
+            }
+
+            // 提交
+            form.on('submit(thisSubmit)', function (data) {
+                data = data.field;
+                    data["yonghuId"]= localStorage.getItem("userid");
+                if(http.getParam('yaopinOrderId')){
+                    data["id"]= http.getParam('yaopinOrderId')
+                }
+                data["yaopinOrderYesnoTypes"]= 1;
+                // 提交数据
+                http.requestJson(`yaopinOrder/${http.getParam("yaopinOrderId")?"update":"add"}`, 'post', data, function (res) {
+                    if(res.code == 0){
+                        layer.msg('提交成功', {
+                            time: 2000,
+                            icon: 6
+                        }, function () {
+                            vue.jump("../yaopinOrder/list.html");
+                                http.remove('yaopinOrderId')
+                            // back();
+                        });
+                    }else{
+                        layer.msg(res.msg, {time: 5000,icon: 5});
+                    }
+                });
+                return false
+            });
+
+        });
+        // 日期框初始化
+        function dateTimePick(){
+            var myDate = new Date();  //获取当前时间
+            /*
+                ,change: function(value, date, endDate){
+                    value       得到日期生成的值，如：2017-08-18
+                    date        得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
+                    endDate     得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
+            */
+            // 审核时间的开始时间和结束时间的效验及格式
+            var yaopinOrderShenheTime = layui.laydate.render({
+                elem: '#yaopinOrderShenheTime'
+	            ,type: 'datetime'
+                ,btns: ['clear', 'confirm']
+                // ,min:myDate.toLocaleString()
+                ,change: function(value, date, endDate){
+                    vue.detail.yaopinOrderShenheTime = value;
+                }
+            });
+        }
+
+
+
+
+       // 订单类型的查询
+       function yaopinOrderTypesSelect() {
+           //填充下拉框选项
+           layui.http.request("dictionary/page?page=1&limit=100&sort=&order=&dicCode=yaopin_order_types", "GET", {}, (res) => {
+               if(res.code == 0){
+                   vue.yaopinOrderTypesList = res.data.list;
+               }
+           });
+       }
+
+
+       // 审核状态的查询
+       function yaopinOrderYesnoTypesSelect() {
+           //填充下拉框选项
+           layui.http.request("dictionary/page?page=1&limit=100&sort=&order=&dicCode=yaopin_order_yesno_types", "GET", {}, (res) => {
+               if(res.code == 0){
+                   vue.yaopinOrderYesnoTypesList = res.data.list;
+               }
+           });
+       }
+
+
+       // 支付类型的查询
+       function yaopinOrderPaymentTypesSelect() {
+           //填充下拉框选项
+           layui.http.request("dictionary/page?page=1&limit=100&sort=&order=&dicCode=yaopin_order_payment_types", "GET", {}, (res) => {
+               if(res.code == 0){
+                   vue.yaopinOrderPaymentTypesList = res.data.list;
+               }
+           });
+       }
+
+
+
+        //单个 收货地址查询
+        function initializationAddress(id){
+            layui.http.request("address/detail/" + id, 'get', {}, function (res) {
+                if(res.code ==0){
+                    vue.address = res.data;
+                    vue.detail.addressId=vue.address.id//赋值给detail
+                }
+            });
+        }
+        //列表 收货地址查询
+        function initializationAddressList(){
+            layui.http.request("address/page?page=1&limit=100&sort=&order=", 'get', {}, function (res) {
+                if(res.code ==0){
+                    vue.addressList = res.data.list;
+                }
+            });
+        }
+        //单个 药品查询
+        function initializationYaopin(id){
+            layui.http.request("yaopin/detail/" + id, 'get', {}, function (res) {
+                if(res.code ==0){
+                    vue.yaopin = res.data;
+                    vue.detail.yaopinId=vue.yaopin.id//赋值给detail
+                }
+            });
+        }
+        //列表 药品查询
+        function initializationYaopinList(){
+            layui.http.request("yaopin/page?page=1&limit=100&sort=&order=", 'get', {}, function (res) {
+                if(res.code ==0){
+                    vue.yaopinList = res.data.list;
+                }
+            });
+        }
+        //单个 用户查询
+        function initializationYonghu(id){
+            layui.http.request("yonghu/detail/" + id, 'get', {}, function (res) {
+                if(res.code ==0){
+                    vue.yonghu = res.data;
+                    vue.detail.yonghuId=vue.yonghu.id//赋值给detail
+                }
+            });
+        }
+        //列表 用户查询
+        function initializationYonghuList(){
+            layui.http.request("yonghu/page?page=1&limit=100&sort=&order=", 'get', {}, function (res) {
+                if(res.code ==0){
+                    vue.yonghuList = res.data.list;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
